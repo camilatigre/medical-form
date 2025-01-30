@@ -1,0 +1,48 @@
+export interface FormData {
+    userId: number;
+    name: string;
+    medicalRecord: string;
+    address: string;
+    healthCardNumber: string | null;
+    age: number | null;
+    companion: string | null;
+    drugAllergies: boolean;
+    medicalHistory: string | null;
+    mainComplaint: string | null;
+    fatherName: string | null;
+    motherName: string | null;
+    birthDate: string;
+    weight: number | null;
+    height: number | null;
+    headCircumference: number | null;
+    bloodPressure: string | null;
+    heartRate: number | null;
+    respiratoryRate: number | null;
+    temperature: number | null;
+    oxygenSaturation: number | null;
+    bloodGlucose: number | null;
+    painScale: 'Leve' | 'Moderada' | 'Intensa' | '';
+    diabetes: boolean;
+    hypertension: boolean;
+    professionalAllergies: string | null;
+    phone: string | null;
+    riskClassification: 'Emergência' | 'Muito Urgente' | 'Pouco Urgente' | 'Não Urgente' | '';
+    identificationNumber: string | null;
+    appointmentDate: string;
+    receptionTime: string;
+    gender: 'Masculino' | 'Feminino' | 'Outro' | '';
+    identity: string | null;
+    addressComplement: string | null;
+    receptionistName: string | null;
+    diagnosticHypothesis: string | null;
+    zipCode: string | null;
+    ethnicity: string | null;
+    cpf: string;
+    fetalHeartRate: number | null;
+    gestationalWeeks: number | null;
+    birthCertificate: string | null;
+    placeOfBirth: string | null;
+    maritalStatus: string | null;
+    occupation: string | null;
+  }
+  
