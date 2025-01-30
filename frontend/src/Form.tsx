@@ -8,6 +8,8 @@ function Form() {
   const { id } = useParams();
   const navigate = useNavigate();
   
+  // Adicionar estado para controlar o loadin
+
   // Obter dados do usuário do sessionStorage
   const userName = sessionStorage.getItem('user_name');
   const userId = sessionStorage.getItem('user_id');
@@ -66,38 +68,29 @@ function Form() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Obter o token do sessionStorage
-    const token = sessionStorage.getItem('access_token');
-
-    // Formatar as datas antes de enviar
-    const formattedData = {
-      ...formData,
-      birthDate: formData.birthDate ? new Date(formData.birthDate).toISOString().split('T')[0] : null,
-      appointmentDate: formData.appointmentDate ? new Date(formData.appointmentDate).toISOString().split('T')[0] : null
-    };
-    
     try {
-      const response = await fetch('http://localhost:3000/medical-records', {
-        method: 'POST',
+      const token = sessionStorage.getItem('access_token');
+      const url = id 
+        ? `http://localhost:3000/medical-records/${id}`
+        : 'http://localhost:3000/medical-records';
+      
+      const response = await fetch(url, {
+        method: id ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formattedData)
+        body: JSON.stringify(formData)
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao salvar o formulário');
+        throw new Error('Erro ao salvar prontuário');
       }
 
-      const data = await response.json();
-      console.log('Formulário salvo com sucesso:', data);
-      
-      // Redireciona para o dashboard após sucesso
       navigate('/dashboard');
       
     } catch (error) {
-      console.error('Erro ao enviar o formulário:', error);
+      console.error('Erro ao salvar:', error);
       // Aqui você pode adicionar uma notificação de erro para o usuário
     } finally {
       setIsSubmitting(false);
@@ -116,9 +109,33 @@ function Form() {
   };
 
   useEffect(() => {
-    if (id) {
-      console.log(id);
-    }
+    const fetchPatientData = async () => {
+      if (id) {
+        try {
+          const token = sessionStorage.getItem('access_token');
+          const response = await fetch(`http://localhost:3000/medical-records/${id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Erro ao buscar dados do paciente');
+          }
+
+          const patientData = await response.json();
+          setFormData(prevData => ({
+            ...prevData,
+            ...patientData,
+            birthDate: patientData.birthDate ? patientData.birthDate.split('T')[0] : '',
+            appointmentDate: patientData.appointmentDate ? patientData.appointmentDate.split('T')[0] : ''
+          }));
+        } catch (error) {
+          console.error('Erro ao carregar dados do paciente:', error);
+        } }
+    };
+
+    fetchPatientData();
   }, [id]);
 
   return (

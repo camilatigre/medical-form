@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { MedicalRecord } from './entities/medical-record.entity';
 import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
+import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto';
 
 @Injectable()
 export class MedicalRecordsService {
@@ -106,5 +107,41 @@ export class MedicalRecordsService {
       this.logger.error(`Erro ao criar registro médico: ${error.message}`, error.stack);
       throw error;
     }
+  }
+
+  async findOne(patientId: number, user: any): Promise<MedicalRecord> {
+    const record = await this.medicalRecordsRepository.findOne({
+      where: { id: patientId, userId: user.userId }
+    });
+    
+    if (!record) {
+      throw new NotFoundException(`Prontuário com ID ${patientId} não encontrado`);
+    }
+    
+    return record;
+  }
+
+  async update(
+    id: number,
+    updateMedicalRecordDto: UpdateMedicalRecordDto,
+    user: any
+  ): Promise<MedicalRecord> {
+    // Primeiro verifica se o registro existe e pertence ao usuário
+    const record = await this.medicalRecordsRepository.findOne({
+      where: { id: id, userId: user.userId }
+    });
+
+    if (!record) {
+      throw new NotFoundException(`Prontuário com ID ${id} não encontrado`);
+    }
+
+    // Atualiza o registro com os novos dados
+    const updatedRecord = {
+      ...record,
+      ...updateMedicalRecordDto,
+      updatedAt: new Date()
+    };
+
+    return this.medicalRecordsRepository.save(updatedRecord);
   }
 } 
