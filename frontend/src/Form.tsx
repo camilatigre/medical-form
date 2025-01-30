@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {FormData} from './types/FormData';
 import MedicalForm from './components/MedicalForm';
+import { useParams } from 'react-router-dom';
 
-function App() {
+function Form() {
+  const { id } = useParams();
   const [formData, setFormData] = useState<FormData>({
     userId: 0,
     name: '',
@@ -116,8 +118,14 @@ function App() {
     }));
   };
 
+  useEffect(() => {
+    if (id) {
+      console.log(id);
+    }
+  }, [id]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 py-8 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Formulário de Admissão Médica</h1>
@@ -134,4 +142,4 @@ function App() {
   );
 }
 
-export default App;
+export default Form;
