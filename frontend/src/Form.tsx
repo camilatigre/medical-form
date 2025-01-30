@@ -7,8 +7,13 @@ import { useParams } from 'react-router-dom';
 function Form() {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  // Obter dados do usuário do sessionStorage
+  const userName = sessionStorage.getItem('user_name');
+  const userId = sessionStorage.getItem('user_id');
+
   const [formData, setFormData] = useState<FormData>({
-    userId: 1,
+    userId: userId ? parseInt(userId) : null,
     name: '',
     medicalRecord: '',
     address: '',
@@ -42,7 +47,7 @@ function Form() {
     gender: '',
     identity: null,
     addressComplement: null,
-    receptionistName: null,
+    receptionistName: userName || null,
     diagnosticHypothesis: null,
     zipCode: null,
     ethnicity: null,
@@ -61,6 +66,9 @@ function Form() {
     e.preventDefault();
     setIsSubmitting(true);
     
+    // Obter o token do sessionStorage
+    const token = sessionStorage.getItem('accessToken');
+    
     // Formatar as datas antes de enviar
     const formattedData = {
       ...formData,
@@ -72,7 +80,8 @@ function Form() {
       const response = await fetch('http://localhost:3000/medical-records', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Adicionar o token no header
         },
         body: JSON.stringify(formattedData)
       });
