@@ -1,7 +1,8 @@
-import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger, InternalServerErrorException, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { MedicalRecord } from './entities/medical-record.entity';
+import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
 
 @Injectable()
 export class MedicalRecordsService {
@@ -51,6 +52,43 @@ export class MedicalRecordsService {
     } catch (error) {
       this.logger.error(`Erro ao verificar existência da tabela: ${error.message}`);
       throw new InternalServerErrorException('Erro na conexão com o banco de dados');
+    }
+  }
+
+  async create(createMedicalRecordDto: CreateMedicalRecordDto): Promise<MedicalRecord> {
+    try {
+      // Verifica se o usuário existe
+      const userExists = await this.dataSource.query(
+        'SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)',
+        [createMedicalRecordDto.userId]
+      );
+
+      if (!userExists[0].exists) {
+        throw new NotFoundException(`Usuário com ID ${createMedicalRecordDto.userId} não encontrado`);
+      }
+
+      // Verifica se já existe um registro com o mesmo medicalRecord ou CPF
+      if (createMedicalRecordDto.medicalRecord) {
+        const existingRecord = await this.medicalRecordsRepository.findOne({
+          where: [
+            { medicalRecord: createMedicalRecordDto.medicalRecord },
+            { cpf: createMedicalRecordDto.cpf }
+          ]
+        });
+
+        if (existingRecord) {
+          throw new ConflictException('Já existe um registro médico com este número ou CPF');
+        }
+      }
+
+      const newMedicalRecord = this.medicalRecordsRepository.create(createMedicalRecordDto);
+      const savedRecord = await this.medicalRecordsRepository.save(newMedicalRecord);
+      
+      this.logger.log(`Registro médico criado com sucesso. ID: ${savedRecord.id}`);
+      return savedRecord;
+    } catch (error) {
+      this.logger.error(`Erro ao criar registro médico: ${error.message}`, error.stack);
+      throw error;
     }
   }
 } 
