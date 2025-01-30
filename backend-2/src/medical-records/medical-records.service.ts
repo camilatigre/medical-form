@@ -1,4 +1,4 @@
-import { Injectable, Logger, InternalServerErrorException, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, InternalServerErrorException, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { MedicalRecord } from './entities/medical-record.entity';
@@ -14,9 +14,14 @@ export class MedicalRecordsService {
     private dataSource: DataSource,
   ) {}
 
-  async findAll(): Promise<MedicalRecord[]> {
+  async findAll(user: any): Promise<MedicalRecord[]> {
     try {
-      // Primeiro, vamos verificar se a tabela existe
+      
+      // Verifica se o usuário está autenticado
+      if (!user) {
+        throw new UnauthorizedException('Usuário não autenticado');
+      }
+
       const tableExists = await this.checkTableExists();
       
       if (!tableExists) {
@@ -24,7 +29,10 @@ export class MedicalRecordsService {
         throw new InternalServerErrorException('Erro de configuração do banco de dados');
       }
 
-      const records = await this.medicalRecordsRepository.find();
+      // Busca apenas os registros relacionados ao usuário autenticado
+      const records = await this.medicalRecordsRepository.find({
+        where: { userId: user.sub }
+      });
       
       if (!records || records.length === 0) {
         this.logger.debug('Nenhum registro médico encontrado');
@@ -55,8 +63,16 @@ export class MedicalRecordsService {
     }
   }
 
-  async create(createMedicalRecordDto: CreateMedicalRecordDto): Promise<MedicalRecord> {
+  async create(createMedicalRecordDto: CreateMedicalRecordDto, user: any): Promise<MedicalRecord> {
     try {
+      // Verifica se o usuário está autenticado
+      if (!user) {
+        throw new UnauthorizedException('Usuário não autenticado');
+      }
+
+      // Associa o registro ao usuário autenticado
+      createMedicalRecordDto.userId = user.sub;
+
       // Verifica se o usuário existe
       const userExists = await this.dataSource.query(
         'SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)',

@@ -67,8 +67,8 @@ function Form() {
     setIsSubmitting(true);
     
     // Obter o token do sessionStorage
-    const token = sessionStorage.getItem('accessToken');
-    
+    const token = sessionStorage.getItem('access_token');
+
     // Formatar as datas antes de enviar
     const formattedData = {
       ...formData,
@@ -81,7 +81,7 @@ function Form() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // Adicionar o token no header
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(formattedData)
       });

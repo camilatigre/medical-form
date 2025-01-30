@@ -1,37 +1,21 @@
-import { Controller, Get, Post, Body, Logger, HttpException, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MedicalRecordsService } from './medical-records.service';
 import { MedicalRecord } from './entities/medical-record.entity';
 import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
 
 @Controller('medical-records')
+@UseGuards(JwtAuthGuard)
 export class MedicalRecordsController {
-  private readonly logger = new Logger(MedicalRecordsController.name);
-
   constructor(private readonly medicalRecordsService: MedicalRecordsService) {}
 
   @Get()
-  async findAll(): Promise<MedicalRecord[]> {
-    try {
-      return await this.medicalRecordsService.findAll();
-    } catch (error) {
-      this.logger.error(`Erro no endpoint findAll: ${error.message}`);
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Erro interno do servidor');
-    }
+  findAll(@Request() req): Promise<MedicalRecord[]> {
+    return this.medicalRecordsService.findAll(req.user);
   }
 
   @Post()
-  async create(@Body() createMedicalRecordDto: CreateMedicalRecordDto): Promise<MedicalRecord> {
-    try {
-      return await this.medicalRecordsService.create(createMedicalRecordDto);
-    } catch (error) {
-      this.logger.error(`Erro ao criar registro médico: ${error.message}`);
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Erro ao criar registro médico');
-    }
+  create(@Body() createMedicalRecordDto: CreateMedicalRecordDto, @Request() req): Promise<MedicalRecord> {
+    return this.medicalRecordsService.create(createMedicalRecordDto, req.user);
   }
 } 
