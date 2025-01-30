@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {FormData} from './types/FormData';
 import MedicalForm from './components/MedicalForm';
 import { useParams } from 'react-router-dom';
 
 function Form() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
-    userId: 0,
+    userId: 1,
     name: '',
     medicalRecord: '',
     address: '',
@@ -53,58 +55,44 @@ function Form() {
     occupation: null
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    console.group('Medical Form Submission');
-    console.log('Personal Information:');
-    console.table({
-      name: formData.name,
-      birthDate: formData.birthDate,
-      age: formData.age,
-      gender: formData.gender,
-      cpf: formData.cpf,
-      healthCardNumber: formData.healthCardNumber,
-      phone: formData.phone
-    });
+    // Formatar as datas antes de enviar
+    const formattedData = {
+      ...formData,
+      birthDate: formData.birthDate ? new Date(formData.birthDate).toISOString().split('T')[0] : null,
+      appointmentDate: formData.appointmentDate ? new Date(formData.appointmentDate).toISOString().split('T')[0] : null
+    };
+    
+    try {
+      const response = await fetch('http://localhost:3000/medical-records', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formattedData)
+      });
 
-    console.log('\nAddress Information:');
-    console.table({
-      address: formData.address,
-      addressComplement: formData.addressComplement,
-      zipCode: formData.zipCode
-    });
+      if (!response.ok) {
+        throw new Error('Erro ao salvar o formulário');
+      }
 
-    console.log('\nVital Signs:');
-    console.table({
-      weight: formData.weight,
-      height: formData.height,
-      temperature: formData.temperature,
-      bloodPressure: formData.bloodPressure,
-      heartRate: formData.heartRate,
-      respiratoryRate: formData.respiratoryRate,
-      oxygenSaturation: formData.oxygenSaturation,
-      bloodGlucose: formData.bloodGlucose
-    });
-
-    console.log('\nMedical Conditions:');
-    console.table({
-      diabetes: formData.diabetes,
-      hypertension: formData.hypertension,
-      drugAllergies: formData.drugAllergies,
-      professionalAllergies: formData.professionalAllergies
-    });
-
-    console.log('\nClinical Assessment:');
-    console.table({
-      mainComplaint: formData.mainComplaint,
-      medicalHistory: formData.medicalHistory,
-      riskClassification: formData.riskClassification,
-      diagnosticHypothesis: formData.diagnosticHypothesis
-    });
-
-    console.log('\nComplete Form Data:', formData);
-    console.groupEnd();
+      const data = await response.json();
+      console.log('Formulário salvo com sucesso:', data);
+      
+      // Redireciona para o dashboard após sucesso
+      navigate('/dashboard');
+      
+    } catch (error) {
+      console.error('Erro ao enviar o formulário:', error);
+      // Aqui você pode adicionar uma notificação de erro para o usuário
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -136,6 +124,7 @@ function Form() {
           formData={formData}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
         />
       </div>
     </div>

@@ -44,4 +44,4 @@ export class CreateMedicalRecordDto {
   placeOfBirth?: string;
   maritalStatus?: string;
   occupation?: string;
-} 
+}
