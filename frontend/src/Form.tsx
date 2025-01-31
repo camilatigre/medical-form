@@ -70,8 +70,8 @@ function Form() {
     try {
       const token = sessionStorage.getItem('access_token');
       const url = id 
-        ? `https://medical-form-api.onrender.com//medical-records/${id}`
-        : `https://medical-form-api.onrender.com//medical-records`;
+        ? `https://medical-form-api.onrender.com/medical-records/${id}`
+        : `https://medical-form-api.onrender.com/medical-records`;
       
       const response = await fetch(url, {
         method: id ? 'PUT' : 'POST',
