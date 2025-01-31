@@ -1,9 +1,0 @@
-{
-    "version": 2,
-    "builds": [
-      { "src": "package.json", "use": "@vercel/node" } // Ou outro builder adequado para seu backend NestJS
-    ],
-    "routes": [
-      { "src": "/api/(.*)", "dest": "/api/$1" }
-    ]
-  }
