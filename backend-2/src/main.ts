@@ -8,7 +8,7 @@ async function bootstrap() {
   try {
     config(); // Carrega as variáveis de ambiente
     logger.log('Variáveis de ambiente carregadas');
-    
+
     const app = await NestFactory.create(AppModule);
     logger.log('Aplicação NestJS criada');
 
