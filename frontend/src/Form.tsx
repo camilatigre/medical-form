@@ -112,7 +112,7 @@ function Form() {
       if (id) {
         try {
           const token = sessionStorage.getItem('access_token');
-          const response = await fetch(`${process.env.API_URL}/medical-records/${id}`, {
+          const response = await fetch(`https://medical-form-api.onrender.com/medical-records/${id}`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
