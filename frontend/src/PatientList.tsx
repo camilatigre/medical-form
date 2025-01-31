@@ -19,7 +19,7 @@ const PatientList = () => {
     const fetchPatients = async () => {
       try {
         const token = sessionStorage.getItem('access_token');
-        const response = await fetch(`${process.env.API_URL}/medical-records`, {
+        const response = await fetch(`https://medical-form-api.onrender.com//medical-records`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
