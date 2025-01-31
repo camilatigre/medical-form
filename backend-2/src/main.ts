@@ -2,8 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { config } from 'dotenv';
 import { Logger } from '@nestjs/common';
-import { HttpExceptionFilter } from './config/http-exception';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -23,18 +21,7 @@ async function bootstrap() {
     });
     logger.log('CORS configurado');
 
-    app.useGlobalFilters(new HttpExceptionFilter());
-
-    const config = new DocumentBuilder()
-      .setTitle('Example Documentation')
-      .setDescription('API example')
-      .setVersion('1.0')
-      .build();
-
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
-
-    const port = process.env.PORT || 3001;
+    const port = process.env.PORT || 3000;
     await app.listen(port);
     logger.log(`Aplicação rodando na porta ${port}`);
   } catch (error) {
