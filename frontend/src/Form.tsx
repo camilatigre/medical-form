@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import {FormData} from './types/FormData';
 import MedicalForm from './components/MedicalForm';
+import { baseUrl } from './constants';
 
 function Form() {
   const { id } = useParams();
@@ -70,8 +72,8 @@ function Form() {
     try {
       const token = sessionStorage.getItem('access_token');
       const url = id 
-        ? `https://medical-form-api.onrender.com/medical-records/${id}`
-        : `https://medical-form-api.onrender.com/medical-records`;
+        ? `${baseUrl}medical-records/${id}`
+        : `${baseUrl}medical-records`;
       
       const response = await fetch(url, {
         method: id ? 'PUT' : 'POST',
@@ -112,7 +114,7 @@ function Form() {
       if (id) {
         try {
           const token = sessionStorage.getItem('access_token');
-          const response = await fetch(`https://medical-form-api.onrender.com/medical-records/${id}`, {
+          const response = await fetch(`${baseUrl}medical-records/${id}`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -139,18 +141,28 @@ function Form() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Formulário de Admissão Médica</h1>
-          <p className="text-gray-600">Por favor, preencha todos os campos obrigatórios</p>
-        </div>
+      <div className="max-w-4xl mx-auto">
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="mb-4 flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition-colors"
+        >
+          <ArrowLeftIcon className="h-5 w-5" />
+          <span>Voltar para lista</span>
+        </button>
+        
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <div className="mb-6 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Formulário de Admissão Médica</h1>
+            <p className="text-gray-600">Por favor, preencha todos os campos obrigatórios</p>
+          </div>
 
-        <MedicalForm 
-          formData={formData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-        />
+          <MedicalForm 
+            formData={formData}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+          />
+        </div>
       </div>
     </div>
   );

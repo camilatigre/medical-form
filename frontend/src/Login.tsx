@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { baseUrl } from './constants';
 
 interface LoginResponse {
   access_token: string;
@@ -34,7 +35,7 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch(`https://medical-form-api.onrender.com/auth/login`, {
+      const response = await fetch(`${baseUrl}auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

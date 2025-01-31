@@ -1,5 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { baseUrl } from './constants';
+import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+
 
 interface Patient {
   id: number;
@@ -13,13 +16,17 @@ const PatientList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageInput, setPageInput] = useState('1');
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 5;
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [patientToDelete, setPatientToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchPatients = async () => {
+      setLoading(true);
       try {
         const token = sessionStorage.getItem('access_token');
-        const response = await fetch(`https://medical-form-api.onrender.com/medical-records`, {
+        const response = await fetch(`${baseUrl}medical-records`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -34,6 +41,8 @@ const PatientList = () => {
       } catch (error) {
         console.error('Erro ao buscar pacientes:', error);
         // Aqui você pode adicionar uma notificação de erro para o usuário
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -75,6 +84,34 @@ const PatientList = () => {
     navigate('/form');
   };
 
+  const openDeleteModal = (patientId: number) => {
+    setPatientToDelete(patientId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!patientToDelete) return;
+
+    try {
+      const token = sessionStorage.getItem('access_token');
+      const response = await fetch(`${baseUrl}medical-records/${patientToDelete}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao excluir prontuário');
+      }
+
+      setPatients(patients.filter(patient => patient.id !== patientToDelete));
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error('Erro ao excluir prontuário:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 py-8 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
@@ -92,7 +129,36 @@ const PatientList = () => {
         </div>
 
         <div className="overflow-x-auto">
-          {patients.length === 0 ? (
+          {loading ? (
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CPF</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Cadastro</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {[...Array(5)].map((_, index) => (
+                  <tr key={index}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-1/3"></div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="h-4 bg-gray-200 rounded animate-pulse w-16"></div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : patients.length === 0 ? (
             <div className="text-center py-8 text-gray-600">
               Não há prontuários cadastrados.
             </div>
@@ -130,12 +196,22 @@ const PatientList = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <button 
-                          onClick={() => handleEdit(patient.id)}
-                          className="text-violet-600 hover:text-violet-900"
-                        >
-                          Editar
-                        </button>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleEdit(patient.id)}
+                            className="text-violet-600 hover:text-violet-900 p-1 rounded-full hover:bg-violet-50"
+                            title="Editar"
+                          >
+                            <PencilIcon className="h-5 w-5" />
+                          </button>
+                          <button 
+                            onClick={() => openDeleteModal(patient.id)}
+                            className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50"
+                            title="Excluir"
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -202,6 +278,34 @@ const PatientList = () => {
           )}
         </div>
       </div>
+
+      {/* Modal de confirmação */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Confirmar exclusão
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Tem certeza que deseja excluir este prontuário? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 rounded-lg hover:bg-gray-100"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

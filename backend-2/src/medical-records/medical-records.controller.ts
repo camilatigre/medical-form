@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, UseGuards, Request, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, UseGuards, Request, Param, NotFoundException } from '@nestjs/common';
 import { MedicalRecordsService } from './medical-records.service';
 import { MedicalRecord } from './entities/medical-record.entity';
 import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
@@ -44,5 +44,13 @@ export class MedicalRecordsController {
       throw new NotFoundException('Prontuário não encontrado');
     }
     return record;
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string, @Request() req): Promise<void> {
+    const record = await this.medicalRecordsService.remove(parseInt(id), req.user);
+    if (!record) {
+      throw new NotFoundException('Prontuário não encontrado');
+    }
   }
 } 

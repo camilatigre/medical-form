@@ -144,4 +144,17 @@ export class MedicalRecordsService {
 
     return this.medicalRecordsRepository.save(updatedRecord);
   }
+
+  async remove(id: number, user: any): Promise<boolean> {
+    const record = await this.medicalRecordsRepository.findOne({
+      where: { id, userId: user.id }
+    });
+
+    if (!record) {
+      return false;
+    }
+
+    await this.medicalRecordsRepository.remove(record);
+    return true;
+  }
 } 
