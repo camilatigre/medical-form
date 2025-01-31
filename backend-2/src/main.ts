@@ -2,9 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { config } from 'dotenv';
 import { Logger } from '@nestjs/common';
-import { Context, Handler } from 'aws-lambda';
-
-let server: any;
+import { HttpExceptionFilter } from './config/http-exception';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -24,32 +23,24 @@ async function bootstrap() {
     });
     logger.log('CORS configurado');
 
-    const port = process.env.PORT || 3000;
-    server = await app.listen(port);
+    app.useGlobalFilters(new HttpExceptionFilter());
+
+    const config = new DocumentBuilder()
+      .setTitle('Example Documentation')
+      .setDescription('API example')
+      .setVersion('1.0')
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+
+    const port = process.env.PORT || 3001;
+    await app.listen(port);
     logger.log(`Aplicação rodando na porta ${port}`);
-    
-    return server;
   } catch (error) {
     logger.error(`Erro ao iniciar a aplicação: ${error.message}`);
     throw error;
   }
 }
 
-// Handler para AWS Lambda
-const handler: Handler = async (event: any, context: Context) => {
-  server = server ?? await bootstrap();
-  
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'NestJS está rodando no Lambda'
-    })
-  };
-};
-
-// Mantém o bootstrap para desenvolvimento local
-if (process.env.NODE_ENV !== 'production') {
-  bootstrap();
-}
-
-export default handler;
+bootstrap();
