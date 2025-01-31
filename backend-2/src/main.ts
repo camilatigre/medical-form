@@ -36,7 +36,7 @@ async function bootstrap() {
 }
 
 // Handler para AWS Lambda
-export const handler: Handler = async (event: any, context: Context) => {
+const handler: Handler = async (event: any, context: Context) => {
   server = server ?? await bootstrap();
   
   return {
@@ -51,3 +51,5 @@ export const handler: Handler = async (event: any, context: Context) => {
 if (process.env.NODE_ENV !== 'production') {
   bootstrap();
 }
+
+export default handler;
