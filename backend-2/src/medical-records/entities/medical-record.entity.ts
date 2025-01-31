@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity('medical_records')
 export class MedicalRecord {
@@ -8,7 +14,7 @@ export class MedicalRecord {
   @Column({ name: 'user_id' })
   userId: number;
 
-  @Column()
+  @Column({ nullable: false })
   name: string;
 
   @Column({ name: 'medical_record', unique: true })
@@ -50,7 +56,13 @@ export class MedicalRecord {
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   height: number;
 
-  @Column({ name: 'head_circumference', type: 'decimal', precision: 5, scale: 2, nullable: true })
+  @Column({
+    name: 'head_circumference',
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+  })
   headCircumference: number;
 
   @Column({ name: 'blood_pressure', nullable: true })
@@ -65,10 +77,22 @@ export class MedicalRecord {
   @Column({ type: 'decimal', precision: 4, scale: 2, nullable: true })
   temperature: number;
 
-  @Column({ name: 'oxygen_saturation', type: 'decimal', precision: 5, scale: 2, nullable: true })
+  @Column({
+    name: 'oxygen_saturation',
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+  })
   oxygenSaturation: number;
 
-  @Column({ name: 'blood_glucose', type: 'decimal', precision: 5, scale: 2, nullable: true })
+  @Column({
+    name: 'blood_glucose',
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+  })
   bloodGlucose: number;
 
   @Column({ name: 'pain_scale', nullable: true })
@@ -140,10 +164,10 @@ export class MedicalRecord {
   @Column({ nullable: true })
   occupation: string;
 
-  @Column({ 
-    name: 'created_at', 
-    type: 'timestamp', 
-    default: () => 'CURRENT_TIMESTAMP' 
+  @Column({
+    name: 'created_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
-} 
+}

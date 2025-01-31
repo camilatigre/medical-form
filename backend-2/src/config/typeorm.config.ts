@@ -8,5 +8,5 @@ export const getTypeOrmConfig = (configService: ConfigService): TypeOrmModuleOpt
     rejectUnauthorized: false, // Necessário para conexões SSL do Neon
   },
   autoLoadEntities: true,
-  synchronize: process.env.NODE_ENV !== 'production', // Desabilite em produção
+  synchronize: false, // Desabilite em produção
 }); 

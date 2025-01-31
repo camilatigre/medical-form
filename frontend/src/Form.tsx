@@ -70,8 +70,8 @@ function Form() {
     try {
       const token = sessionStorage.getItem('access_token');
       const url = id 
-        ? `http://localhost:3000/medical-records/${id}`
-        : 'http://localhost:3000/medical-records';
+        ? `${process.env.API_URL}/medical-records/${id}`
+        : `${process.env.API_URL}/medical-records`;
       
       const response = await fetch(url, {
         method: id ? 'PUT' : 'POST',
@@ -112,7 +112,7 @@ function Form() {
       if (id) {
         try {
           const token = sessionStorage.getItem('access_token');
-          const response = await fetch(`http://localhost:3000/medical-records/${id}`, {
+          const response = await fetch(`${process.env.API_URL}/medical-records/${id}`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
