@@ -34,7 +34,7 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await fetch(`${process.env.API_URL}/auth/login`, {
+      const response = await fetch(`https://medical-form-api.onrender.com/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
