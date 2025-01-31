@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {FormData} from './types/FormData';
 import MedicalForm from './components/MedicalForm';
-import { useParams } from 'react-router-dom';
 
 function Form() {
   const { id } = useParams();
