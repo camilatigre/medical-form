@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["node", "aws-lambda"],
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
