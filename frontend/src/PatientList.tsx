@@ -71,115 +71,135 @@ const PatientList = () => {
     navigate(`/form/${patientId}`);
   };
 
+  const handleNewRecord = () => {
+    navigate('/form');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 py-8 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Fichas Cadastradas</h1>
-          <p className="text-gray-600">Lista de pacientes registrados no sistema</p>
+        <div className="mb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Fichas Cadastradas</h1>
+            <p className="text-gray-600">Lista de pacientes registrados no sistema</p>
+          </div>
+          <button
+            onClick={handleNewRecord}
+            className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
+          >
+            Novo Prontuário
+          </button>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nome
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  CPF
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Data de Cadastro
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {currentPatients.map((patient) => (
-                <tr key={patient.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{patient.name}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{patient.cpf}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">
-                      {new Date(patient.createdAt).toLocaleDateString('pt-BR')}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <button 
-                      onClick={() => handleEdit(patient.id)}
-                      className="text-violet-600 hover:text-violet-900"
-                    >
-                      Editar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* Paginação */}
-          <div className="mt-4 flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
-              >
-                ←
-              </button>
-
-              {/* Números das páginas */}
-              <div className="flex gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-3 py-1 rounded ${
-                      currentPage === page
-                        ? 'bg-violet-600 text-white'
-                        : 'border border-gray-300'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
-              >
-                →
-              </button>
+          {patients.length === 0 ? (
+            <div className="text-center py-8 text-gray-600">
+              Não há prontuários cadastrados.
             </div>
+          ) : (
+            <>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Nome
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      CPF
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Data de Cadastro
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Ações
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {currentPatients.map((patient) => (
+                    <tr key={patient.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{patient.name}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">{patient.cpf}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">
+                          {new Date(patient.createdAt).toLocaleDateString('pt-BR')}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <button 
+                          onClick={() => handleEdit(patient.id)}
+                          className="text-violet-600 hover:text-violet-900"
+                        >
+                          Editar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-            {/* Input para digitar a página */}
-            <form onSubmit={handlePageInputSubmit} className="flex items-center gap-2">
-              <span className="text-sm text-gray-700">Ir para página:</span>
-              <input
-                type="number"
-                min="1"
-                max={totalPages}
-                value={pageInput}
-                onChange={handlePageInputChange}
-                className="w-16 px-2 py-1 border border-gray-300 rounded"
-              />
-              <button
-                type="submit"
-                className="px-3 py-1 bg-violet-600 text-white rounded hover:bg-violet-700"
-              >
-                Ir
-              </button>
-            </form>
-          </div>
+              {/* Paginação */}
+              <div className="mt-4 flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
+                  >
+                    ←
+                  </button>
+
+                  {/* Números das páginas */}
+                  <div className="flex gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-3 py-1 rounded ${
+                          currentPage === page
+                            ? 'bg-violet-600 text-white'
+                            : 'border border-gray-300'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
+                  >
+                    →
+                  </button>
+                </div>
+
+                {/* Input para digitar a página */}
+                <form onSubmit={handlePageInputSubmit} className="flex items-center gap-2">
+                  <span className="text-sm text-gray-700">Ir para página:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max={totalPages}
+                    value={pageInput}
+                    onChange={handlePageInputChange}
+                    className="w-16 px-2 py-1 border border-gray-300 rounded"
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 py-1 bg-violet-600 text-white rounded hover:bg-violet-700"
+                  >
+                    Ir
+                  </button>
+                </form>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
