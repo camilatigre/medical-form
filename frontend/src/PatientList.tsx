@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Patient {
   id: number;
@@ -12,71 +12,33 @@ const PatientList = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageInput, setPageInput] = useState('1');
+  const [patients, setPatients] = useState<Patient[]>([]);
   const itemsPerPage = 5;
 
-  // Dados mocados para exemplo
-  const patients: Patient[] = [
-    {
-      id: 1,
-      name: "Maria Silva Santos",
-      cpf: "123.456.789-00",
-      createdAt: "2024-03-20"
-    },
-    {
-      id: 2,
-      name: "João Pedro Oliveira",
-      cpf: "987.654.321-00",
-      createdAt: "2024-03-19"
-    },
-    {
-      id: 3,
-      name: "Ana Carolina Lima",
-      cpf: "456.789.123-00",
-      createdAt: "2024-03-18"
-    },
-    {
-      id: 4,
-      name: "Carlos Eduardo Souza",
-      cpf: "789.123.456-00",
-      createdAt: "2024-03-17"
-    },
-    {
-      id: 5,
-      name: "Beatriz Ferreira Costa",
-      cpf: "321.654.987-00",
-      createdAt: "2024-03-16"
-    },
-    {
-      id: 6,
-      name: "Ricardo Mendes Silva",
-      cpf: "111.222.333-44",
-      createdAt: "2024-03-15"
-    },
-    {
-      id: 7,
-      name: "Patricia Oliveira Santos",
-      cpf: "555.666.777-88",
-      createdAt: "2024-03-14"
-    },
-    {
-      id: 8,
-      name: "Fernando Costa Lima",
-      cpf: "999.888.777-66",
-      createdAt: "2024-03-13"
-    },
-    {
-      id: 9,
-      name: "Mariana Santos Pereira",
-      cpf: "444.555.666-77",
-      createdAt: "2024-03-12"
-    },
-    {
-      id: 10,
-      name: "Lucas Almeida Souza",
-      cpf: "222.333.444-55",
-      createdAt: "2024-03-11"
-    }
-  ];
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const token = sessionStorage.getItem('access_token');
+        const response = await fetch('http://localhost:3000/medical-records', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Falha ao carregar pacientes');
+        }
+
+        const data = await response.json();
+        setPatients(data);
+      } catch (error) {
+        console.error('Erro ao buscar pacientes:', error);
+        // Aqui você pode adicionar uma notificação de erro para o usuário
+      }
+    };
+
+    fetchPatients();
+  }, []);
 
   // Lógica de paginação
   const totalPages = Math.ceil(patients.length / itemsPerPage);
@@ -105,58 +67,8 @@ const PatientList = () => {
     }
   };
 
-  const handleEdit = (patientId: number) => {
-    // Mock de dados completos do paciente
-    const mockPatientData = {
-      userId: patientId,
-      name: "Maria Silva Santos",
-      medicalRecord: "12345",
-      address: "Rua das Flores, 123",
-      healthCardNumber: "987654321",
-      age: 35,
-      companion: "João Silva",
-      drugAllergies: true,
-      medicalHistory: "Hipertensão",
-      mainComplaint: "Dor de cabeça",
-      fatherName: "José Silva",
-      motherName: "Ana Santos",
-      birthDate: "1989-05-15",
-      weight: 65,
-      height: 165,
-      headCircumference: 56,
-      bloodPressure: "120/80",
-      heartRate: 75,
-      respiratoryRate: 16,
-      temperature: 36.5,
-      oxygenSaturation: 98,
-      bloodGlucose: 95,
-      painScale: "3",
-      diabetes: false,
-      hypertension: true,
-      professionalAllergies: "Nenhuma",
-      phone: "11999999999",
-      riskClassification: "Baixo",
-      identificationNumber: "123456789",
-      appointmentDate: "2024-03-20",
-      receptionTime: "14:30",
-      gender: "F",
-      identity: "12345678-9",
-      addressComplement: "Apto 101",
-      receptionistName: "Carlos Silva",
-      diagnosticHypothesis: "Enxaqueca",
-      zipCode: "12345-678",
-      ethnicity: "Branca",
-      cpf: "123.456.789-00",
-      fetalHeartRate: null,
-      gestationalWeeks: null,
-      birthCertificate: null,
-      placeOfBirth: "São Paulo",
-      maritalStatus: "Casada",
-      occupation: "Professora"
-    };
-
-    // Navega para o formulário com os dados mockados
-    navigate(`/form/${patientId}`, { state: { formData: mockPatientData } });
+  const handleEdit = async (patientId: number) => {
+    navigate(`/form/${patientId}`);
   };
 
   return (

@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {FormData} from './types/FormData';
 import MedicalForm from './components/MedicalForm';
 import { useParams } from 'react-router-dom';
 
 function Form() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  
+  // Adicionar estado para controlar o loadin
+
+  // Obter dados do usuário do sessionStorage
+  const userName = sessionStorage.getItem('user_name');
+  const userId = sessionStorage.getItem('user_id');
+
   const [formData, setFormData] = useState<FormData>({
-    userId: 0,
+    userId: userId ? parseInt(userId) : null,
     name: '',
     medicalRecord: '',
     address: '',
@@ -40,7 +49,7 @@ function Form() {
     gender: '',
     identity: null,
     addressComplement: null,
-    receptionistName: null,
+    receptionistName: userName || null,
     diagnosticHypothesis: null,
     zipCode: null,
     ethnicity: null,
@@ -53,58 +62,39 @@ function Form() {
     occupation: null
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    console.group('Medical Form Submission');
-    console.log('Personal Information:');
-    console.table({
-      name: formData.name,
-      birthDate: formData.birthDate,
-      age: formData.age,
-      gender: formData.gender,
-      cpf: formData.cpf,
-      healthCardNumber: formData.healthCardNumber,
-      phone: formData.phone
-    });
+    try {
+      const token = sessionStorage.getItem('access_token');
+      const url = id 
+        ? `http://localhost:3000/medical-records/${id}`
+        : 'http://localhost:3000/medical-records';
+      
+      const response = await fetch(url, {
+        method: id ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
 
-    console.log('\nAddress Information:');
-    console.table({
-      address: formData.address,
-      addressComplement: formData.addressComplement,
-      zipCode: formData.zipCode
-    });
+      if (!response.ok) {
+        throw new Error('Erro ao salvar prontuário');
+      }
 
-    console.log('\nVital Signs:');
-    console.table({
-      weight: formData.weight,
-      height: formData.height,
-      temperature: formData.temperature,
-      bloodPressure: formData.bloodPressure,
-      heartRate: formData.heartRate,
-      respiratoryRate: formData.respiratoryRate,
-      oxygenSaturation: formData.oxygenSaturation,
-      bloodGlucose: formData.bloodGlucose
-    });
-
-    console.log('\nMedical Conditions:');
-    console.table({
-      diabetes: formData.diabetes,
-      hypertension: formData.hypertension,
-      drugAllergies: formData.drugAllergies,
-      professionalAllergies: formData.professionalAllergies
-    });
-
-    console.log('\nClinical Assessment:');
-    console.table({
-      mainComplaint: formData.mainComplaint,
-      medicalHistory: formData.medicalHistory,
-      riskClassification: formData.riskClassification,
-      diagnosticHypothesis: formData.diagnosticHypothesis
-    });
-
-    console.log('\nComplete Form Data:', formData);
-    console.groupEnd();
+      navigate('/dashboard');
+      
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      // Aqui você pode adicionar uma notificação de erro para o usuário
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -119,9 +109,33 @@ function Form() {
   };
 
   useEffect(() => {
-    if (id) {
-      console.log(id);
-    }
+    const fetchPatientData = async () => {
+      if (id) {
+        try {
+          const token = sessionStorage.getItem('access_token');
+          const response = await fetch(`http://localhost:3000/medical-records/${id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Erro ao buscar dados do paciente');
+          }
+
+          const patientData = await response.json();
+          setFormData(prevData => ({
+            ...prevData,
+            ...patientData,
+            birthDate: patientData.birthDate ? patientData.birthDate.split('T')[0] : '',
+            appointmentDate: patientData.appointmentDate ? patientData.appointmentDate.split('T')[0] : ''
+          }));
+        } catch (error) {
+          console.error('Erro ao carregar dados do paciente:', error);
+        } }
+    };
+
+    fetchPatientData();
   }, [id]);
 
   return (
@@ -136,6 +150,7 @@ function Form() {
           formData={formData}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
         />
       </div>
     </div>

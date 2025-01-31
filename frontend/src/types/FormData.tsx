@@ -1,3 +1,5 @@
+export type RiskClassification = 'Emergência' | 'Muito Urgente' | 'Pouco Urgente' | 'Não Urgente' | '';
+
 export interface FormData {
     userId: number;
     name: string;
@@ -26,7 +28,7 @@ export interface FormData {
     hypertension: boolean;
     professionalAllergies: string | null;
     phone: string | null;
-    riskClassification: 'Emergência' | 'Muito Urgente' | 'Pouco Urgente' | 'Não Urgente' | '';
+    iskClassification: RiskClassification;
     identificationNumber: string | null;
     appointmentDate: string;
     receptionTime: string;

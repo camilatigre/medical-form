@@ -1,23 +1,48 @@
-import { Controller, Get, Logger, HttpException, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, UseGuards, Request, Param, NotFoundException } from '@nestjs/common';
 import { MedicalRecordsService } from './medical-records.service';
 import { MedicalRecord } from './entities/medical-record.entity';
+import { CreateMedicalRecordDto } from './dto/create-medical-record.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto';
 
 @Controller('medical-records')
+@UseGuards(JwtAuthGuard)
 export class MedicalRecordsController {
-  private readonly logger = new Logger(MedicalRecordsController.name);
-
   constructor(private readonly medicalRecordsService: MedicalRecordsService) {}
 
   @Get()
-  async findAll(): Promise<MedicalRecord[]> {
-    try {
-      return await this.medicalRecordsService.findAll();
-    } catch (error) {
-      this.logger.error(`Erro no endpoint findAll: ${error.message}`);
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new InternalServerErrorException('Erro interno do servidor');
+  findAll(@Request() req): Promise<MedicalRecord[]> {
+    return this.medicalRecordsService.findAll(req.user);
+  }
+
+  @Post()
+  create(@Body() createMedicalRecordDto: CreateMedicalRecordDto, @Request() req): Promise<MedicalRecord> {
+    return this.medicalRecordsService.create(createMedicalRecordDto, req.user);
+  }
+
+  @Get(':patientId')
+  async findOne(@Param('patientId') patientId: string, @Request() req): Promise<MedicalRecord> {
+    const record = await this.medicalRecordsService.findOne(parseInt(patientId), req.user);
+    if (!record) {
+      throw new NotFoundException('Prontuário não encontrado');
     }
+    return record;
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateMedicalRecordDto: UpdateMedicalRecordDto,
+    @Request() req
+  ): Promise<MedicalRecord> {
+    const record = await this.medicalRecordsService.update(
+      parseInt(id),
+      updateMedicalRecordDto,
+      req.user
+    );
+    if (!record) {
+      throw new NotFoundException('Prontuário não encontrado');
+    }
+    return record;
   }
 } 
