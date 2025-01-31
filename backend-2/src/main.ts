@@ -1,19 +1,33 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { config } from 'dotenv';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
-  config(); // Carrega as variáveis de ambiente
-  const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
+  try {
+    config(); // Carrega as variáveis de ambiente
+    logger.log('Variáveis de ambiente carregadas');
+    
+    const app = await NestFactory.create(AppModule);
+    logger.log('Aplicação NestJS criada');
 
-  // Configuração do CORS
-  app.enableCors({
-    origin: 'http://localhost:5173', // URL do seu frontend
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  });
+    // Configuração do CORS
+    app.enableCors({
+      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true,
+    });
+    logger.log('CORS configurado');
 
-  await app.listen(process.env.PORT ?? 3000);
+    const port = process.env.PORT || 3000;
+    await app.listen(port);
+    logger.log(`Aplicação rodando na porta ${port}`);
+  } catch (error) {
+    logger.error(`Erro ao iniciar a aplicação: ${error.message}`);
+    process.exit(1);
+  }
 }
+
 bootstrap();
