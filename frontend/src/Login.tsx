@@ -1,6 +1,15 @@
+
+import { LoginFormInput } from './components/LoginForm/LoginFormInput';
+import { SubmitButton } from './components/LoginForm/SubmitButton';
+import { ErrorMessage } from './components/common/ErrorMessage';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { baseUrl } from './constants';
+
+interface LoginFormData {
+  email: string;
+  password: string;
+}
 
 interface LoginResponse {
   access_token: string;
@@ -12,9 +21,11 @@ interface LoginResponse {
   };
 }
 
+
 const Login = () => {
+
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: ''
   });
@@ -49,12 +60,10 @@ const Login = () => {
 
       const data: LoginResponse = await response.json();
       
-      // Salva os dados no sessionStorage em vez do localStorage
       sessionStorage.setItem('access_token', data.access_token);
       sessionStorage.setItem('user_id', data.user.id.toString());
       sessionStorage.setItem('user_name', data.user.name);
       
-      // Redireciona para o dashboard
       navigate('/dashboard');
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Erro ao fazer login');
@@ -72,56 +81,28 @@ const Login = () => {
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-          
+          {error && <ErrorMessage message={error} />}
+
           <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Senha
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-violet-500 focus:border-violet-500 focus:z-10 sm:text-sm"
-              />
-            </div>
+            <LoginFormInput
+              id="email"
+              name="email"
+              type="email"
+              label="Email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+            <LoginFormInput
+              id="password"
+              name="password"
+              type="password"
+              label="Senha"
+              value={formData.password}
+              onChange={handleChange}
+            />
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white 
-                ${isLoading 
-                  ? 'bg-violet-400 cursor-not-allowed' 
-                  : 'bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500'
-                }`}
-            >
-              {isLoading ? 'Entrando...' : 'Entrar'}
-            </button>
-          </div>
+          <SubmitButton isLoading={isLoading} />
         </form>
       </div>
     </div>
