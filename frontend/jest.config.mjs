@@ -4,7 +4,7 @@ export default {
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
-  setupFilesAfterEnv: ['./src/setupTests.ts'], // Caminho atualizado
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'], // Caminho atualizado
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: 'tsconfig.json',
@@ -15,5 +15,5 @@ export default {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node', 'mjs'],
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
-  roots: ['src'], // Adicionando roots para especificar onde procurar arquivos
+  roots: ['<rootDir>/src'],
 };
