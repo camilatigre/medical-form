@@ -14,10 +14,12 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "jest-fixed-jsdom": "^0.0.9",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.1.4"
+    "react-router-dom": "^7.1.4",
+    "text-encoder-lite": "^2.0.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.26.7",
