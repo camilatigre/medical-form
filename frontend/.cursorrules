@@ -92,3 +92,20 @@ Code Quality and Best Practices
   - Use functional and declarative programming patterns; avoid classes.
   - Prefer iteration and modularization over code duplication.
   - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+
+Clean Code
+  - Use meaningful variable and function names.
+  - Keep functions small and focused.
+  - Avoid side effects in components.
+  - Use functional components and hooks.
+  - Implement error boundaries to handle and recover from errors.
+  - When functions have more than 3 parameters, use an object as a parameter.
+  - Prefer enums over booleans
+  - prefer constants over magic numbers
+  - prefer meaningful names over single letter names
+  - use objects to remove if statements
+  - use const to turn if statements into variables
+  - use switch statements for multiple if-else statements
+  - use has and is to boolean variables
+  - create a pattern of nameing functions with a prefix of what they do
+  
